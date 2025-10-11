@@ -5,7 +5,7 @@ import com.zsd.voxmania.display.DisplayObject;
 import java.util.ArrayList;
 
 public class ObjectMGRScreen extends BaseScreen {
-    ArrayList<DisplayObject> objects = new ArrayList<>();
+    public ArrayList<DisplayObject> objects = new ArrayList<>();
 
     public ObjectMGRScreen() {}
 

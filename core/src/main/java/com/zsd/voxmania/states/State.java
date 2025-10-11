@@ -1,10 +1,10 @@
 package com.zsd.voxmania.states;
 
 import com.zsd.voxmania.display.screen.CanvasScreen;
-import com.zsd.voxmania.display.screen.sprite.SpriteRenderer;
+import com.zsd.voxmania.display.screen.sprite.NestableSpriteRenderer;
 
 public class State extends CanvasScreen {
-    public SpriteRenderer defaultRenderer = new SpriteRenderer(true);
+    public NestableSpriteRenderer defaultRenderer = new NestableSpriteRenderer(true);
     @Override
     public void draw(float delta)
     {
@@ -14,5 +14,7 @@ public class State extends CanvasScreen {
 
     public void update(float delta) {}
 
-    public void create() {}
+    public void create() {
+        addObject(defaultRenderer);
+    }
 }

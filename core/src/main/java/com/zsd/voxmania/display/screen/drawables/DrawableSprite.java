@@ -42,6 +42,8 @@ public class DrawableSprite extends Sprite implements RenderedDrawable {
 
     @Override
     public void draw() {
+        if (!renderer.batch.isDrawing())
+            renderer.batch.begin();
         draw(renderer.batch);
     }
 

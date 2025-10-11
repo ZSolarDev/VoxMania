@@ -41,8 +41,10 @@ public class GameOverlay extends NestableSpriteRenderer
         }
 
         for (int i = 0; i < 4; i++) {
+            int texIndex = (i == 1) ? 3 : (i == 3) ? 1 : i;
+
             DrawableSprite note = new DrawableSprite(
-                new Texture(Gdx.files.internal("game/notes/normal/" + i + ".png")),
+                new Texture(Gdx.files.internal("game/notes/normal/" + texIndex + ".png")),
                 this
             );
             note.setY(100);
@@ -67,7 +69,8 @@ public class GameOverlay extends NestableSpriteRenderer
         };
 
         for (int i = 0; i < types.length; i++) {
-            DrawableSprite note = curHeld.get(i);
+            int texIndex = (i == 1) ? 3 : (i == 3) ? 1 : i;
+            DrawableSprite note = curHeld.get(texIndex);
             boolean held = curHeldData.contains(types[i]);
 
             float targetAlpha = held ? 1f : 0.5f;
@@ -83,7 +86,7 @@ public class GameOverlay extends NestableSpriteRenderer
             totalWidth += note.getWidth() * note.getScaleX();
         }
 
-        float centerX = Gdx.graphics.getWidth() / 2f;
+        float centerX = 1280 / 2f;
         float currentX = centerX - totalWidth / 2f;
         //currentX += text.width;
 

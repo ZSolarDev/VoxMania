@@ -1,7 +1,13 @@
 package com.zsd.voxmania.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
+import com.zsd.voxmania.display.DisplayObject;
+import com.zsd.voxmania.display.screen.drawables.DrawableSprite;
 import com.zsd.voxmania.game.events.EventData;
 import com.zsd.voxmania.game.events.scontainers.DivaScriptESC;
 import com.zsd.voxmania.game.events.ESCRunner;
@@ -9,6 +15,7 @@ import com.zsd.voxmania.game.events.types.TargetHitEvent;
 import com.zsd.voxmania.states.State;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.function.Function;
@@ -19,16 +26,20 @@ public class Game extends State {
     ESCRunner runner;
     DivaInputState diva;
     ArrayList<DivaInputState.TargetInputType> canBeHeld = new ArrayList<>();
-
+    HashMap<String, Sound> hitSounds = new HashMap<>();
 
     @SuppressWarnings("DiscouragedApi")
     @Override
     public void create() {
+        super.create();
         backgroundColor = Color.GRAY;
         ui = new GameUI();
-        addObject(ui);
+        defaultRenderer.addRenderer(ui);
 
-        System.out.println(Gdx.files.internal("mods/TestMod/World Is Mine ExEx.dsc"));
+        hitSounds.put("target_hit", Gdx.audio.newSound(Gdx.files.internal("game/sounds/target_hit.wav")));
+        hitSounds.put("chain_hit", Gdx.audio.newSound(Gdx.files.internal("game/sounds/chain_hit.wav")));
+        hitSounds.put("slide_hit", Gdx.audio.newSound(Gdx.files.internal("game/sounds/slide_hit.wav")));
+
         runner = new ESCRunner(new DivaScriptESC(Gdx.files.internal("mods/TestMod/World Is Mine ExEx.dsc")), Gdx.audio.newMusic(Gdx.files.internal("mods/TestMod/World Is Mine.ogg")));
         runner.onTargetEvent = (args, event) -> {
             int noteType = Math.round(args.get(0));
@@ -52,16 +63,6 @@ public class Game extends State {
             note.getMusTime = () -> {return runner.music.getPosition();};
             note.flyingTime = flyingTime;
             note.eventTime = eventTime;
-
-            Timer timer = new Timer();
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    ui.removeTarget(target);
-                    target.dispose();
-                    runner.processEvent(new EventData("TargetHitEvent", new TargetHitEvent(note), runner));
-                }
-            }, (long) ((flyingTime + ((noteType == 12 || noteType == 13 || noteType == 15 || noteType == 16 || noteType == 23 || noteType == 24) ? 0.1 : 0.06)) * 1000));
 
             //System.out.println("New target of type " + args.get(0) + " With flying time " + args.get(args.size() - 1) + "!");
         };
@@ -190,7 +191,8 @@ public class Game extends State {
             ui.removeTarget(target.parentTarget);
             target.dispose();
             target.parentTarget.dispose();
-            Gdx.audio.newSound(Gdx.files.internal("game/sounds/" + hitNoise.apply(target) + ".wav")).play();
+            Sound sound = hitSounds.get(hitNoise.apply(target));
+            if (sound != null) sound.play();
             if (target.hold){
                 if (target.type == 0 && !canBeHeld.contains(DivaInputState.TargetInputType.TRIANGLE))
                     canBeHeld.add(DivaInputState.TargetInputType.TRIANGLE);
@@ -209,17 +211,20 @@ public class Game extends State {
     public void update(float delta)
     {
         super.update(delta);
-        diva.update(delta);
-        for (Target target : ui.targets) {
-            if (target.target)
-                continue;
-            if (target.progress < -(target.type == 15 || target.type == 16 ? 0.02 : 0.07))
-            {
-                runner.processEvent(new EventData("TargetHitEvent", new TargetHitEvent(target), runner));
-                ui.queueRemoveTarget(target);
-                ui.queueRemoveTarget(target.parentTarget);
-                target.dispose();
-                target.parentTarget.dispose();
+        System.out.println(Gdx.graphics.getFramesPerSecond());
+        if (diva != null)
+            diva.update(delta);
+        if (ui != null) {
+            for (Target target : ui.targets) {
+                if (target.target)
+                    continue;
+                if (target.progress < -(target.type == 15 || target.type == 16 ? 0.02 : 0.07)) {
+                    runner.processEvent(new EventData("TargetHitEvent", new TargetHitEvent(target), runner));
+                    ui.queueRemoveTarget(target);
+                    ui.queueRemoveTarget(target.parentTarget);
+                    target.dispose();
+                    target.parentTarget.dispose();
+                }
             }
         }
     }

@@ -5,6 +5,7 @@ import com.zsd.voxmania.display.DisplayObject;
 import com.zsd.voxmania.game.events.types.*;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -60,18 +61,24 @@ public class ESCRunner implements DisplayObject {
 
     @Override
     public void update(float delta) {
-        if (running && music.isPlaying())
-        {
+        if (running && music.isPlaying()) {
+            float pos = music.getPosition();
+            Iterator<Event> it = esc.events.iterator();
             EventFrame eventFrame = new EventFrame();
-            for (Event event : esc.events)
-            {
+
+            while (it.hasNext()) {
+                Event event = it.next();
                 float time = (float) event.time / 100000;
-                if (time <= music.getPosition())
+                if (time <= pos) {
                     eventFrame.add(new EventData(event.getClass().getSimpleName(), event, this));
+                    it.remove();
+                } else {
+                    break;
+                }
             }
+
             esc.procEventFrame(eventFrame);
             eventFramesProcessed.add(eventFrame);
-            esc.events.removeAll(eventFrame.stream().map((eventData -> {return eventData.event;})).toList());
         }
     }
 

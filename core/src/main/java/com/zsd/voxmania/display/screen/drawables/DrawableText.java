@@ -3,26 +3,36 @@ package com.zsd.voxmania.display.screen.drawables;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.zsd.voxmania.display.RenderedDrawable;
 import com.zsd.voxmania.display.screen.sprite.SpriteRenderer;
 
 public class DrawableText implements RenderedDrawable {
-    public BitmapFont font;
-    float x, y;
+    public BitmapFont textObj;
+    public String text;
+    public float targetWidth;
+    public int halign;
+    public boolean wrap;
+    public float x, y;
 
-    // 36, 2
-    public DrawableText(FileHandle fontFile, int size, Color color, float x, float y, int borderWidth, Color borderColor, SpriteRenderer renderer)
+    public DrawableText(FileHandle fontFile, float size, Color color, float x, float y, String text, float targetWidth, int halign, boolean wrap)
     {
-        this.renderer = renderer;
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(fontFile);
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = size;
-        parameter.color = color;
-        parameter.borderWidth = borderWidth;
-        parameter.borderColor = borderColor;
-        font = generator.generateFont(parameter);
-        generator.dispose();
+        this.x = x;
+        this.y = y;
+        this.text = text;
+        this.targetWidth = targetWidth;
+        this.halign = halign;
+        this.wrap = wrap;
+        if (fontFile != null)
+            textObj = new BitmapFont(fontFile);
+        else
+            textObj = new BitmapFont();
+        textObj.setColor(color);
+        textObj.getData().setScale(size);
+    }
+
+    public DrawableText(FileHandle fontFile, float size, Color color, float x, float y, String text)
+    {
+        this(fontFile, size, color, x, y, text, 0, 0, false);
     }
 
     private SpriteRenderer renderer;
@@ -38,7 +48,7 @@ public class DrawableText implements RenderedDrawable {
 
     @Override
     public void draw() {
-        //font.draw(renderer.batch);
+        textObj.draw(renderer.batch, text, x, y, targetWidth, halign, wrap);
     }
 
     @Override

@@ -80,7 +80,8 @@ public class StateManager {
     public static void update(float delta)
     {
         if (currentSubState == null) {
-            currentState.draw(delta);
+            if (currentState != null)
+                currentState.draw(delta);
         }else {
             currentSubState.render(delta);
             currentSubState.draw(delta);

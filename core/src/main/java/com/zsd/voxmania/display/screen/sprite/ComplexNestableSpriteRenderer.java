@@ -1,6 +1,7 @@
 package com.zsd.voxmania.display.screen.sprite;
 
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.zsd.voxmania.display.RenderedDrawable;
 
 /**
@@ -11,6 +12,10 @@ public class ComplexNestableSpriteRenderer extends NestableSpriteRenderer {
     @Override
     public void draw()
     {
+        for (NestableSpriteRenderer renderer : renderers)
+            renderer.draw();
+        if (batch == null)
+            batch = new SpriteBatch();
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
         for (RenderedDrawable drawable : sprites) {
@@ -18,8 +23,5 @@ public class ComplexNestableSpriteRenderer extends NestableSpriteRenderer {
             drawable.draw();
         }
         batch.end();
-
-        for (NestableSpriteRenderer renderer : renderers)
-            renderer.draw();
     }
 }
