@@ -1,6 +1,7 @@
 package com.zsd.voxmania.display.screen.sprite;
 
-import com.badlogic.gdx.graphics.g2d.Sprite;
+
+import com.zsd.voxmania.display.RenderedDrawable;
 
 /**
  * A NestableSpriteRenderer which instead of drawing the child sprites on its own sprite batch, it draws it on the childs.
@@ -12,8 +13,10 @@ public class ComplexNestableSpriteRenderer extends NestableSpriteRenderer {
     {
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        for (Sprite spr : sprites)
-            spr.draw(batch);
+        for (RenderedDrawable drawable : sprites) {
+            drawable.setRenderer(this);
+            drawable.draw();
+        }
         batch.end();
 
         for (NestableSpriteRenderer renderer : renderers)

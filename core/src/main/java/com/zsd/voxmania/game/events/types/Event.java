@@ -1,5 +1,5 @@
 package com.zsd.voxmania.game.events.types;
 
-public interface Event {
-    int time = 0;
+public class Event {
+    public int time = 0;
 }

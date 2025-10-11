@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//Note, the above license and copyright applies to this file only.
+//Target, the above license and copyright applies to this file only.
 
 package com.zsd.voxmania.lwjgl3;
 

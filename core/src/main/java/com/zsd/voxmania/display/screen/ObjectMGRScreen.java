@@ -1,9 +1,6 @@
 package com.zsd.voxmania.display.screen;
 
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.utils.ScreenUtils;
 import com.zsd.voxmania.display.DisplayObject;
-import com.zsd.voxmania.display.Drawable;
 
 import java.util.ArrayList;
 

@@ -1,7 +1,6 @@
 package com.zsd.voxmania.game.events.types;
 
-public class TargetEvent implements Event {
-    public int time = 0;
+public class TargetEvent extends Event {
     public int noteType = 0;
     public int x = 0;
     public int y = 0;

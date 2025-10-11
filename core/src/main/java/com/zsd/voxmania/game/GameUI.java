@@ -5,41 +5,61 @@ import com.zsd.voxmania.display.screen.sprite.NestableSpriteRenderer;
 import java.util.ArrayList;
 
 public class GameUI extends NestableSpriteRenderer {
-    public ArrayList<Note> notes = new ArrayList<Note>();
+    public ArrayList<Target> targets;
+    public NestableSpriteRenderer targetRenderer = new NestableSpriteRenderer(true);
+    public ArrayList<Target> targetDisposeQueue = new ArrayList<>();
+    public GameOverlay overlay = new GameOverlay();
 
-    public GameUI(ArrayList<Note> notes)
+    public GameUI(ArrayList<Target> targets)
     {
-        super();
-        this.notes = notes;
-        renderers.addAll(notes);
+        super(true);
+        this.targets = targets;
+        addRenderer(targetRenderer);
+        addRenderer(overlay);
     }
 
-    public void addNote(Note note)
+    public void addNote(Target target)
     {
-        notes.add(note);
-        addRenderer(note);
+        targets.add(target);
     }
 
-    public void addNote(Note note, int idx)
+    public void addNote(Target target, int idx)
     {
-        notes.add(idx, note);
-        addRenderer(note, idx);
+        targets.add(idx, target);
     }
 
-    public void removeNote(Note note)
+    public void removeTarget(Target target)
     {
-        notes.remove(note);
-        removeRenderer(note);
+        targets.remove(target);
+        try{
+            target.dispose();
+        }catch (Exception e)
+        {
+            System.out.println("Failed to dispose target!");
+        }
     }
 
-    public void removeNote(int idx)
+    public void queueRemoveTarget(Target target)
     {
-        notes.remove(idx);
-        removeRenderer(idx);
+        targetDisposeQueue.add(target);
+    }
+
+    public void removeTarget(int idx)
+    {
+        targets.get(idx).dispose();
+        targets.remove(idx);
+    }
+
+    @Override
+    public void update(float delta) {
+        super.update(delta);
+        for (Target target : targetDisposeQueue)
+            targets.remove(target);
+        targetDisposeQueue.clear();
     }
 
     public GameUI()
     {
-        this(new ArrayList<Note>());
+        this(new ArrayList<Target>());
     }
 }

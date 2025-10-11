@@ -1,9 +1,9 @@
 package com.zsd.voxmania.display;
 
-public class Drawable implements DisplayObject{
-    public void draw() {};
-    public void update(float delta) {};
-    public void dispose() {};
+import com.zsd.voxmania.display.screen.sprite.SpriteRenderer;
 
-    public Drawable() {};
+public interface Drawable extends DisplayObject{
+    public void draw();
+    public void update(float delta);
+    public void dispose();
 }

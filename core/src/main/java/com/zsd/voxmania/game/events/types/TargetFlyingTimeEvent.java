@@ -1,7 +1,6 @@
 package com.zsd.voxmania.game.events.types;
 
-public class TargetFlyingTimeEvent implements Event {
-    public int time = 0;
+public class TargetFlyingTimeEvent extends Event {
     public int flyingTime = 0;
     public TargetFlyingTimeEvent(int time, int flyingTime)
     {

@@ -1,26 +1,49 @@
 package com.zsd.voxmania.display.screen.sprite;
-import com.badlogic.gdx.graphics.g2d.Sprite;
+
+import com.zsd.voxmania.display.RenderedDrawable;
+
 import java.util.ArrayList;
 
 public class NestableSpriteRenderer extends SpriteRenderer {
     public ArrayList<NestableSpriteRenderer> renderers = new ArrayList<>();
+
+    public NestableSpriteRenderer(boolean updateChildren)
+    {
+        super(updateChildren);
+    }
+
+    public NestableSpriteRenderer()
+    {
+        this(false);
+    }
 
     @Override
     public void draw()
     {
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        for (NestableSpriteRenderer renderer : renderers)
+        for (RenderedDrawable drawable : sprites) {
+            drawable.setRenderer(this);
+            drawable.draw();
+        }for (NestableSpriteRenderer renderer : renderers)
             drawRenderer(renderer);
-        for (Sprite spr : sprites)
-            spr.draw(batch);
         batch.end();
+    }
+    @Override
+    public void update(float delta)
+    {
+        super.update(delta);
+        if (updateChildren)
+            for (NestableSpriteRenderer renderer : renderers)
+                renderer.update(delta);
     }
 
     public void drawRenderer(NestableSpriteRenderer renderer)
     {
-        for (Sprite spr : renderer.sprites)
-            spr.draw(batch);
+        for (RenderedDrawable drawable : renderer.sprites) {
+            drawable.setRenderer(this);
+            drawable.draw();
+        }
         for (NestableSpriteRenderer csr : renderer.renderers)
             drawRenderer(csr);
     }

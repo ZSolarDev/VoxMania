@@ -1,9 +1,11 @@
 package com.zsd.voxmania.dscparser;
 
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.LittleEndianInputStream;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
@@ -120,9 +122,24 @@ public class DivaScriptParser {
         /* WIND */ Map.entry(69, 3)
     );
 
-    public static DivaScript parse(String path)
+    public static DivaScript parse(FileHandle handle) {
+        return parse(handle.read());
+    }
+
+    public static DivaScript parse(String path) {
+        try(FileInputStream stream = new FileInputStream(path)){
+            return parse(stream);
+        }
+        catch (IOException e)
+        {
+            System.out.println(e.getMessage());
+            return null;
+        }
+    }
+
+    public static DivaScript parse(InputStream stream)
     {
-        try(LittleEndianInputStream inStrm = new LittleEndianInputStream(new FileInputStream(path))) {
+        try(LittleEndianInputStream inStrm = new LittleEndianInputStream(stream)) {
             DivaScript script = new DivaScript();
             int fmt = inStrm.readInt();
             if (!fmts.contains(fmt))
