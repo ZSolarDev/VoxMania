@@ -112,7 +112,7 @@ public class DivaInputState extends InputAdapter {
     }
 
     private TargetInputType getTargetType(float x) {
-        float width = Gdx.graphics.getWidth();
+        float width = 1280;
         float range = x / width;
         if (range < 0.25f) return TargetInputType.TRIANGLE;
         else if (range < 0.5f) return TargetInputType.SQUARE;

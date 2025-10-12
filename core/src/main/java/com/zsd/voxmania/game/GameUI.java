@@ -4,14 +4,13 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.Align;
 import com.zsd.voxmania.display.screen.drawables.DrawableTTFText;
-import com.zsd.voxmania.display.screen.drawables.DrawableText;
-import com.zsd.voxmania.display.screen.sprite.NestableSpriteRenderer;
+import com.zsd.voxmania.display.screen.sprite.NestableDrawableRenderer;
 
 import java.util.ArrayList;
 
-public class GameUI extends NestableSpriteRenderer {
+public class GameUI extends NestableDrawableRenderer {
     public ArrayList<Target> targets;
-    public NestableSpriteRenderer targetRenderer = new NestableSpriteRenderer(true);
+    public NestableDrawableRenderer targetRenderer = new NestableDrawableRenderer(true);
     public ArrayList<Target> targetDisposeQueue = new ArrayList<>();
     public GameOverlay overlay = new GameOverlay();
     public DrawableTTFText fpsDisplay;
@@ -23,7 +22,7 @@ public class GameUI extends NestableSpriteRenderer {
         addRenderer(targetRenderer);
         addRenderer(overlay);
         fpsDisplay = new DrawableTTFText(Gdx.files.internal("game/fonts/normal_filled.ttf"), 40, Color.WHITE, 40, 700, "FPS: ???", 0, Align.left, false);
-        addSprite(fpsDisplay);
+        addDrawable(fpsDisplay);
     }
 
     public void addNote(Target target)

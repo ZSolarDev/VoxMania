@@ -2,10 +2,8 @@ package com.zsd.voxmania.display.screen.drawables;
 
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.zsd.voxmania.display.RenderedDrawable;
-import com.zsd.voxmania.display.screen.sprite.SpriteRenderer;
 
 public class DrawableTTFText extends DrawableText implements RenderedDrawable {
     public DrawableTTFText(FileHandle fontFile, int size, Color color, float x, float y, String text, float targetWidth, int halign, boolean wrap, float borderWidth, Color borderColor)

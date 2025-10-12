@@ -3,8 +3,9 @@ package com.zsd.voxmania.display.screen.drawables;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.zsd.voxmania.display.RenderedDrawable;
-import com.zsd.voxmania.display.screen.sprite.SpriteRenderer;
+import com.zsd.voxmania.display.screen.sprite.DrawableRenderer;
 
 public class DrawableText implements RenderedDrawable {
     public BitmapFont textObj;
@@ -13,6 +14,7 @@ public class DrawableText implements RenderedDrawable {
     public int halign;
     public boolean wrap;
     public float x, y;
+    public GlyphLayout layout = new GlyphLayout();
 
     public DrawableText(FileHandle fontFile, float size, Color color, float x, float y, String text, float targetWidth, int halign, boolean wrap)
     {
@@ -35,14 +37,14 @@ public class DrawableText implements RenderedDrawable {
         this(fontFile, size, color, x, y, text, 0, 0, false);
     }
 
-    private SpriteRenderer renderer;
+    private DrawableRenderer renderer;
     @Override
-    public SpriteRenderer getRenderer() {
+    public DrawableRenderer getRenderer() {
         return renderer;
     }
 
     @Override
-    public void setRenderer(SpriteRenderer renderer) {
+    public void setRenderer(DrawableRenderer renderer) {
         this.renderer = renderer;
     }
 
@@ -52,7 +54,9 @@ public class DrawableText implements RenderedDrawable {
     }
 
     @Override
-    public void update(float delta) {}
+    public void update(float delta) {
+        layout.setText(textObj, text);
+    }
 
     @Override
     public void dispose() {}

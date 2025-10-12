@@ -5,14 +5,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.zsd.voxmania.display.RenderedDrawable;
 
 /**
- * A NestableSpriteRenderer which instead of drawing the child sprites on its own sprite batch, it draws it on the childs.
- * WARNING: This is lower performance than the NestableSpriteRenderer due to the constant flushing from all of the sprite batches being used!
+ * A NestableDrawableRenderer which instead of drawing the child sprites on its own sprite batch, it draws it on the childs.
+ * WARNING: This is lower performance than the NestableDrawableRenderer due to the constant flushing from all of the sprite batches being used!
  */
-public class ComplexNestableSpriteRenderer extends NestableSpriteRenderer {
+public class ComplexNestableDrawableRenderer extends NestableDrawableRenderer {
     @Override
     public void draw()
     {
-        for (NestableSpriteRenderer renderer : renderers)
+        for (NestableDrawableRenderer renderer : renderers)
             renderer.draw();
         if (batch == null)
             batch = new SpriteBatch();

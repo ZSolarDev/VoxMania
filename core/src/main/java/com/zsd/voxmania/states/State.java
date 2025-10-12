@@ -1,10 +1,10 @@
 package com.zsd.voxmania.states;
 
 import com.zsd.voxmania.display.screen.CanvasScreen;
-import com.zsd.voxmania.display.screen.sprite.NestableSpriteRenderer;
+import com.zsd.voxmania.display.screen.sprite.NestableDrawableRenderer;
 
 public class State extends CanvasScreen {
-    public NestableSpriteRenderer defaultRenderer = new NestableSpriteRenderer(true);
+    public NestableDrawableRenderer defaultRenderer = new NestableDrawableRenderer(true);
     @Override
     public void draw(float delta)
     {

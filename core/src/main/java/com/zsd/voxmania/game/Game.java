@@ -63,8 +63,6 @@ public class Game extends State {
             note.getMusTime = () -> {return runner.music.getPosition();};
             note.flyingTime = flyingTime;
             note.eventTime = eventTime;
-
-            //System.out.println("New target of type " + args.get(0) + " With flying time " + args.get(args.size() - 1) + "!");
         };
         runner.onBasicEvent = (event) -> {
             //System.out.println("New basic event of type " + event.type + " with params: " + event.params.toString() + "!");
@@ -211,7 +209,6 @@ public class Game extends State {
     public void update(float delta)
     {
         super.update(delta);
-        System.out.println(Gdx.graphics.getFramesPerSecond());
         if (diva != null)
             diva.update(delta);
         if (ui != null) {

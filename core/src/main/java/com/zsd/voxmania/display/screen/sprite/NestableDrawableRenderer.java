@@ -5,15 +5,15 @@ import com.zsd.voxmania.display.RenderedDrawable;
 
 import java.util.ArrayList;
 
-public class NestableSpriteRenderer extends SpriteRenderer {
-    public ArrayList<NestableSpriteRenderer> renderers = new ArrayList<>();
+public class NestableDrawableRenderer extends DrawableRenderer {
+    public ArrayList<NestableDrawableRenderer> renderers = new ArrayList<>();
 
-    public NestableSpriteRenderer(boolean updateChildren)
+    public NestableDrawableRenderer(boolean updateChildren)
     {
         super(updateChildren);
     }
 
-    public NestableSpriteRenderer()
+    public NestableDrawableRenderer()
     {
         this(false);
     }
@@ -26,7 +26,7 @@ public class NestableSpriteRenderer extends SpriteRenderer {
         batch.setProjectionMatrix(camera.combined);
         if (!batch.isDrawing())
             batch.begin();
-        for (NestableSpriteRenderer renderer : renderers)
+        for (NestableDrawableRenderer renderer : renderers)
             drawRenderer(renderer);
         for (RenderedDrawable drawable : sprites) {
             drawable.setRenderer(this);
@@ -39,31 +39,31 @@ public class NestableSpriteRenderer extends SpriteRenderer {
     {
         super.update(delta);
         if (updateChildren)
-            for (NestableSpriteRenderer renderer : renderers)
+            for (NestableDrawableRenderer renderer : renderers)
                 renderer.update(delta);
     }
 
-    public void drawRenderer(NestableSpriteRenderer renderer)
+    public void drawRenderer(NestableDrawableRenderer renderer)
     {
         for (RenderedDrawable drawable : renderer.sprites) {
             drawable.setRenderer(this);
             drawable.draw();
         }
-        for (NestableSpriteRenderer csr : renderer.renderers)
+        for (NestableDrawableRenderer csr : renderer.renderers)
             drawRenderer(csr);
     }
 
-    public void addRenderer(NestableSpriteRenderer renderer)
+    public void addRenderer(NestableDrawableRenderer renderer)
     {
         renderers.add(renderer);
     }
 
-    public void addRenderer(NestableSpriteRenderer renderer, int idx)
+    public void addRenderer(NestableDrawableRenderer renderer, int idx)
     {
         renderers.add(idx, renderer);
     }
 
-    public void removeRenderer(NestableSpriteRenderer renderer)
+    public void removeRenderer(NestableDrawableRenderer renderer)
     {
         renderers.remove(renderer);
     }

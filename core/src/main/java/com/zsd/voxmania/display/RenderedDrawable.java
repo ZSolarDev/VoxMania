@@ -1,8 +1,8 @@
 package com.zsd.voxmania.display;
 
-import com.zsd.voxmania.display.screen.sprite.SpriteRenderer;
+import com.zsd.voxmania.display.screen.sprite.DrawableRenderer;
 
 public interface RenderedDrawable extends Drawable{
-    SpriteRenderer getRenderer();
-    void setRenderer(SpriteRenderer renderer);
+    DrawableRenderer getRenderer();
+    void setRenderer(DrawableRenderer renderer);
 }

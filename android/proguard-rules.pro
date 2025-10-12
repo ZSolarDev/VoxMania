@@ -39,7 +39,7 @@
    float   reportRayFixture(long, float, float, float, float, float);
 }
 
-# You will need the next three lines if you use scene2d for SpriteRenderer or gameplay.
+# You will need the next three lines if you use scene2d for DrawableRenderer or gameplay.
 # If you don't use scene2d at all, you can remove or comment out the next line:
 -keep public class com.badlogic.gdx.scenes.scene2d.** { *; }
 # You will need the next two lines if you use BitmapFont or any scene2d.ui text:

@@ -7,19 +7,19 @@ import com.zsd.voxmania.display.RenderedDrawable;
 
 import java.util.ArrayList;
 
-public class SpriteRenderer implements RenderedDrawable {
+public class DrawableRenderer implements RenderedDrawable {
     public SpriteBatch batch;
     public ArrayList<RenderedDrawable> sprites = new ArrayList<>();
     public ArrayList<RenderedDrawable> disposeQueue = new ArrayList<>();
     public Camera camera = Main.camera;
     public boolean updateChildren = false;
 
-    public SpriteRenderer(boolean updateChildren)
+    public DrawableRenderer(boolean updateChildren)
     {
         this.updateChildren = updateChildren;
     }
 
-    public SpriteRenderer()
+    public DrawableRenderer()
     {
         this(false);
     }
@@ -47,12 +47,12 @@ public class SpriteRenderer implements RenderedDrawable {
     }
 
     @Override
-    public SpriteRenderer getRenderer() {
+    public DrawableRenderer getRenderer() {
         return null;
     }
 
     @Override
-    public void setRenderer(SpriteRenderer renderer) {}
+    public void setRenderer(DrawableRenderer renderer) {}
 
     @Override
     public void draw()
@@ -68,12 +68,12 @@ public class SpriteRenderer implements RenderedDrawable {
         batch.end();
     }
 
-    public void addSprite(RenderedDrawable spr)
+    public void addDrawable(RenderedDrawable spr)
     {
         sprites.add(spr);
     }
 
-    public void addSprite(RenderedDrawable spr, int idx)
+    public void addDrawable(RenderedDrawable spr, int idx)
     {
         sprites.add(idx, spr);
     }

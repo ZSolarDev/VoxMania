@@ -47,9 +47,9 @@ public class Target extends DrawableSprite {
         this.hold = isHold;
 
         if (!isTarget)
-            parent.targetRenderer.addSprite(this);
+            parent.targetRenderer.addDrawable(this);
         else
-            parent.addSprite(this);
+            parent.addDrawable(this);
         setX(x);
         setY(y);
         scale(-0.35f);
@@ -61,7 +61,7 @@ public class Target extends DrawableSprite {
             holdSpr.setX(x);
             holdSpr.setY(y - 15);
             holdSpr.scale(-0.35f);
-            parent.addSprite(holdSpr);
+            parent.addDrawable(holdSpr);
         }
         if (isTarget && !isChain)
         {
@@ -70,7 +70,7 @@ public class Target extends DrawableSprite {
             clockHand.setY(y - 25);
             clockHand.setOriginCenter();
             clockHand.scale(-0.35f);
-            parent.addSprite(clockHand);
+            parent.addDrawable(clockHand);
         }
 
         startX = (float) (targetX - Math.cos(angle) * distance);
