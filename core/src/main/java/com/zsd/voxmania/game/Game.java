@@ -3,21 +3,19 @@ package com.zsd.voxmania.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.MathUtils;
-import com.zsd.voxmania.display.DisplayObject;
-import com.zsd.voxmania.display.screen.drawables.DrawableSprite;
 import com.zsd.voxmania.game.events.EventData;
 import com.zsd.voxmania.game.events.scontainers.DivaScriptESC;
 import com.zsd.voxmania.game.events.ESCRunner;
 import com.zsd.voxmania.game.events.types.TargetHitEvent;
 import com.zsd.voxmania.states.State;
 
+import org.luaj.vm2.Globals;
+import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.lib.jse.JsePlatform;
+
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.List;
 import java.util.function.Function;
 
 
@@ -27,6 +25,10 @@ public class Game extends State {
     DivaInputState diva;
     ArrayList<DivaInputState.TargetInputType> canBeHeld = new ArrayList<>();
     HashMap<String, Sound> hitSounds = new HashMap<>();
+    public float score = 0;
+    public float curHoldScore = 0;
+    public float heldSecs = 0;
+    public int curCombo = 0;
 
     @SuppressWarnings("DiscouragedApi")
     @Override
@@ -86,8 +88,7 @@ public class Game extends State {
                     ((target.type == 2 || target.type == 6 || target.type == 20) && pressed.contains(DivaInputState.TargetInputType.CROSS)) ||
                     ((target.type == 3 || target.type == 7 || target.type == 21) && pressed.contains(DivaInputState.TargetInputType.SQUARE))
                 ),
-                (target) -> (target.progress < 0.07 && target.progress > -0.07),
-                    (_) -> "target_hit");
+                    (t) -> "target_hit");
             },
             (held) -> {
                 boolean pressable = false;
@@ -122,15 +123,55 @@ public class Game extends State {
                 (target.type == 16 && sliders.contains(DivaInputState.SliderInputType.RIGHT)) ||
                 (target.type == 23 && sliders.contains(DivaInputState.SliderInputType.LEFT)) ||
                 (target.type == 24 && sliders.contains(DivaInputState.SliderInputType.RIGHT))),
-                (target) -> (target.progress < (target.type == 15 || target.type == 16 ? 0.02 : 0.07) && target.progress > -(target.type == 15 || target.type == 16 ? 0.02 : 0.07)),
-                (target) -> (target.type == 15 || target.type == 16 ? "chain_hit" : "slide_hit"));
+                    (target) -> (target.type == 15 || target.type == 16 ? "chain_hit" : "slide_hit"));
             }
         );
         Gdx.input.setInputProcessor(diva);
+
+
+        // LUA TESTING
+        Globals globals = JsePlatform.standardGlobals();
+        LuaValue script = globals.load(Gdx.files.internal("theme/test.lua").readString(), "test.lua");
+        script.call(); // prints to console
+        LuaValue func = globals.get("greet");
+        float ret = func.call(LuaValue.valueOf("ZSolarDev")).tofloat();
+        System.out.println("Lua function 'greet' with arg 'ZSolarDev' returned " + ret + "!");
     }
 
+
+
+    boolean addedHoldBonus = false;
+    float lastHeldLength = 0;
     public void updateHolds(ArrayList<DivaInputState.TargetInputType> held)
     {
+        if (!held.isEmpty()) {
+            heldSecs += Gdx.graphics.getDeltaTime();
+
+            int heldSecsInt = (int) heldSecs;
+
+            if (heldSecsInt < 5) {
+                curHoldScore += (600 * Gdx.graphics.getDeltaTime()) * held.size();
+            }else if (!addedHoldBonus) {
+                addedHoldBonus = true;
+            }else {
+                curHoldScore = 3000 * held.size();
+                ui.overlay.showBonusText = true;
+            }
+
+            ui.overlay.showText = true;
+            ui.overlay.holdScoreText.text = "+" + (int) curHoldScore;
+            ui.overlay.bonusHoldScoreText.text =  "+" + 1500 * held.size();
+            lastHeldLength = held.size();
+        } else {
+            score += curHoldScore;
+            score += 1500 * lastHeldLength;
+            lastHeldLength = 0;
+            heldSecs = 0;
+            curHoldScore = 0;
+            addedHoldBonus = false;
+            ui.overlay.showText = false;
+            ui.overlay.showBonusText = false;
+        }
         ui.overlay.curHeldData = (ArrayList<DivaInputState.TargetInputType>) held.clone();
     }
 
@@ -163,26 +204,47 @@ public class Game extends State {
         }
     }
 
-    public void onTargetHit(Function<Target, Boolean> condition, Function<Target, Boolean> hitCondition, Function<Target, String> hitNoise)
+    public void onTargetHit(Function<Target, Boolean> condition, Function<Target, String> hitNoise)
     {
-        ArrayList<Target> pressableTargets = new ArrayList<>();
+        ArrayList<TargetHit> pressableTargets = new ArrayList<>();
         for (Target target : ui.targets) {
             if (target.target)
                 continue;
             if (condition.apply(target))
             {
-                if (hitCondition.apply(target))
+                int rating = 0;
+                boolean canHit = false;
+                float hitTime = runner.music.getPosition() - (target.eventTime + target.flyingTime);
+                float absHitTime = Math.abs(hitTime);
+                ArrayList<Float> times = new ArrayList<Float>(List.of(0.13f, 0.10f, 0.07f, 0.03f, 1.0f/120.0f));
+                for (int timeIdx = 0; timeIdx < times.size(); timeIdx++) {
+                    float time = times.get(timeIdx);
+                    ArrayList<Integer> sliderIDs = new ArrayList<Integer>(List.of(12, 13, 15, 16));
+                    if (time < 0.07f && sliderIDs.contains(normalizeNoteType(target.type)))
+                        continue;
+
+                    if (absHitTime <= time) {
+                        int ratingStart = timeIdx * 3;
+                        rating = (hitTime < 0 ? ratingStart : hitTime == time ? ratingStart + 1 : ratingStart + 2);
+                        canHit = true;
+                    }
+                }
+                if (canHit)
                 {
+                    TargetHit tHit = new TargetHit();
+                    tHit.target = target;
+                    tHit.rating = rating;
                     if (!pressableTargets.isEmpty())
                     {
-                        if (pressableTargets.get(pressableTargets.size() - 1).progress <= target.progress)
-                            pressableTargets.add(target);
+                        if (pressableTargets.get(pressableTargets.size() - 1).target.progress == target.progress)
+                            pressableTargets.add(tHit);
                     }else
-                        pressableTargets.add(target);
+                        pressableTargets.add(tHit);
                 }
             }
         }
-        for (Target target : pressableTargets) {
+        for (TargetHit tHit : pressableTargets) {
+            Target target = tHit.target;
             ui.overlay.onPressableHit(normalizeNoteType(target.type));
             runner.processEvent(new EventData("TargetHitEvent", new TargetHitEvent(target), runner));
             ui.removeTarget(target);
@@ -201,7 +263,19 @@ public class Game extends State {
                 if (target.type == 3 && !canBeHeld.contains(DivaInputState.TargetInputType.SQUARE))
                     canBeHeld.add(DivaInputState.TargetInputType.SQUARE);
             }
-
+            int rating = tHit.rating;
+            int ratingScore = 0;
+            if (rating >= 0)
+                ratingScore = 50;
+            if (rating >= 3)
+                ratingScore = 100;
+            if (rating >= 6) {
+                ratingScore = 300;
+                curCombo++;
+            }
+            if (rating >= 9)
+                ratingScore = 500;
+            score += ratingScore;
         }
     }
 
@@ -225,4 +299,17 @@ public class Game extends State {
             }
         }
     }
+}
+
+class TargetHit {
+    public Target target;
+    /*
+    0-2: sad
+    3-5: safe
+    6-8: fine
+    9-11: cool
+    12-14: cool (without delay)
+     */
+    public int rating;
+    public TargetHit() {}
 }

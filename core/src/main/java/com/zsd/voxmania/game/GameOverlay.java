@@ -17,7 +17,10 @@ public class GameOverlay extends NestableDrawableRenderer
     public ArrayList<DrawableSprite> pressables = new ArrayList<>();
     public ArrayList<DrawableSprite> curHeld = new ArrayList<>();
     public ArrayList<DivaInputState.TargetInputType> curHeldData = new ArrayList<>();
-    public DrawableTTFText comboText;
+    public DrawableTTFText holdScoreText;
+    public DrawableTTFText bonusHoldScoreText;
+    public boolean showText;
+    public boolean showBonusText;
 
     public GameOverlay()
     {
@@ -58,12 +61,17 @@ public class GameOverlay extends NestableDrawableRenderer
             addDrawable(note);
         }
 
-        comboText = new DrawableTTFText(Gdx.files.internal("game/fonts/score.ttf"), 30, Color.WHITE, 0, 160, "+1", 0, Align.left, false, 5, Color.BLACK);
-        addDrawable(comboText);
-        Color cTxtColor = comboText.textObj.getColor();
-        comboText.textObj.setColor(cTxtColor.r, cTxtColor.g, cTxtColor.b, 0);
+        holdScoreText = new DrawableTTFText(Gdx.files.internal("game/fonts/score.ttf"), 30, Color.WHITE, 0, 160, "+0", 0, Align.left, false, 5, Color.BLACK);
+        addDrawable(holdScoreText);
+        Color sTxtColor = holdScoreText.textObj.getColor();
+        holdScoreText.textObj.setColor(sTxtColor.r, sTxtColor.g, sTxtColor.b, 0);
+        bonusHoldScoreText = new DrawableTTFText(Gdx.files.internal("game/fonts/score.ttf"), 20, new Color(0x00FFAAFF), 900, 180, "+0", 0, Align.left, false, 5, new Color(0x008800FF));
+        addDrawable(bonusHoldScoreText);
+        Color bsTxtColor = bonusHoldScoreText.textObj.getColor();
+        bonusHoldScoreText.textObj.setColor(bsTxtColor.r, bsTxtColor.g, bsTxtColor.b, 0);
     }
 
+    float baseTotalWidth = 0;
     @Override
     public void update(float delta)
     {
@@ -89,13 +97,20 @@ public class GameOverlay extends NestableDrawableRenderer
             note.setScale(MathUtils.lerp(note.getScaleX(), targetScale, delta * 5));
         }
 
-        float targetAlpha = (!curHeldData.isEmpty()) ? 1f : 0f;
-        Color cTxtColor = comboText.textObj.getColor();
-        float cTxtAlpha = cTxtColor.a;
-        comboText.textObj.setColor(cTxtColor.r, cTxtColor.g, cTxtColor.b, MathUtils.lerp(cTxtAlpha, targetAlpha, delta * 5));
 
-        float comboWidth = comboText.layout.width;
-        float totalWidth = comboWidth;
+        float targetAlpha = (!curHeldData.isEmpty() && showText) ? 1f : 0f;
+        Color sTxtColor = holdScoreText.textObj.getColor();
+        float sTxtAlpha = sTxtColor.a;
+        holdScoreText.textObj.setColor(sTxtColor.r, sTxtColor.g, sTxtColor.b, MathUtils.lerp(sTxtAlpha, targetAlpha, delta * 5));
+
+        float bstargetAlpha = (!curHeldData.isEmpty() && showBonusText) ? 1f : 0f;
+        Color bsTxtColor = bonusHoldScoreText.textObj.getColor();
+        float bsTxtAlpha = bsTxtColor.a;
+        bonusHoldScoreText.textObj.setColor(bsTxtColor.r, bsTxtColor.g, bsTxtColor.b, MathUtils.lerp(bsTxtAlpha, bstargetAlpha, delta * 5));
+
+        float comboWidth = holdScoreText.layout.width;
+        baseTotalWidth = MathUtils.lerp(baseTotalWidth, showText ? comboWidth : 0, delta * 5);
+        float totalWidth = baseTotalWidth;
 
         for (DrawableSprite note : curHeld) {
             totalWidth += note.getWidth() * note.getScaleX();
@@ -109,7 +124,7 @@ public class GameOverlay extends NestableDrawableRenderer
             note.setX(currentX + noteWidth / 2f);
             currentX += noteWidth;
         }
-        comboText.x = currentX + 50;
+        holdScoreText.x = currentX + 50;
     }
 
     public void onPressableHit(int normalizedTargetType)

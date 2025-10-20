@@ -18,6 +18,7 @@ dependencies {
   api "com.github.tommyettinger:gdcrux:$gdcruxVersion"
   api "com.github.ykrasik:jaci-libgdx-cli-java:$jaciVersion"
   api "de.tomgrill.gdxdialogs:gdx-dialogs-core:$dialogsVersion"
+  implementation "org.luaj:luaj-jse:$luajVersion"
 
   if(enableGraalNative == 'true') {
     implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"
