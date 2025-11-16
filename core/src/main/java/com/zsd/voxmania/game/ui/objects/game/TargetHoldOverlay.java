@@ -1,4 +1,4 @@
-package com.zsd.voxmania.game;
+package com.zsd.voxmania.game.ui.objects.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -7,14 +7,12 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Align;
 import com.zsd.voxmania.display.screen.drawables.DrawableSprite;
 import com.zsd.voxmania.display.screen.drawables.DrawableTTFText;
-import com.zsd.voxmania.display.screen.sprite.NestableDrawableRenderer;
+import com.zsd.voxmania.game.DivaInputState;
+import com.zsd.voxmania.game.ui.UILayer;
 
 import java.util.ArrayList;
 
-public class GameOverlay extends NestableDrawableRenderer
-{
-    public DrawableSprite base;
-    public ArrayList<DrawableSprite> pressables = new ArrayList<>();
+public class TargetHoldOverlay extends UILayer {
     public ArrayList<DrawableSprite> curHeld = new ArrayList<>();
     public ArrayList<DivaInputState.TargetInputType> curHeldData = new ArrayList<>();
     public DrawableTTFText holdScoreText;
@@ -22,31 +20,8 @@ public class GameOverlay extends NestableDrawableRenderer
     public boolean showText;
     public boolean showBonusText;
 
-    public GameOverlay()
+    public TargetHoldOverlay()
     {
-        super(true);
-        base = new DrawableSprite(new Texture(Gdx.files.internal("game/overlay/overlay.png")), this);
-        base.setAlpha(0.5f);
-        addDrawable(base);
-        String[][] spritePaths = {
-            { "game/overlay/targets/", "Triangle.png" },
-            { "game/overlay/targets/", "Circle.png" },
-            { "game/overlay/targets/", "Cross.png" },
-            { "game/overlay/targets/", "Square.png" },
-            { "game/overlay/sliders/", "Left.png" },
-            { "game/overlay/sliders/", "Right.png" }
-        };
-
-        for (String[] path : spritePaths) {
-            DrawableSprite sprite = new DrawableSprite(
-                new Texture(Gdx.files.internal(path[0] + path[1])),
-                this
-            );
-            addDrawable(sprite);
-            pressables.add(sprite);
-            sprite.setAlpha(0);
-        }
-
         for (int i = 0; i < 4; i++) {
             int texIndex = (i == 1) ? 3 : (i == 3) ? 1 : i;
 
@@ -73,17 +48,21 @@ public class GameOverlay extends NestableDrawableRenderer
 
     float baseTotalWidth = 0;
     @Override
-    public void update(float delta)
-    {
+    public void update(float delta) {
         super.update(delta);
-        for (DrawableSprite pressable : pressables)
-            pressable.setAlpha(MathUtils.lerp(pressable.getColor().a, 0, delta * 5));
         DivaInputState.TargetInputType[] types = {
             DivaInputState.TargetInputType.TRIANGLE,
             DivaInputState.TargetInputType.CIRCLE,
             DivaInputState.TargetInputType.CROSS,
             DivaInputState.TargetInputType.SQUARE
         };
+
+        holdScoreText.x = holdScoreText.x - position.x;
+        holdScoreText.y = holdScoreText.y - position.y;
+        for (DrawableSprite note : curHeld) {
+            note.setX(note.getX() - position.x);
+            note.setY(note.getY() - position.y);
+        }
 
         for (int i = 0; i < types.length; i++) {
             int texIndex = (i == 1) ? 3 : (i == 3) ? 1 : i;
@@ -125,38 +104,26 @@ public class GameOverlay extends NestableDrawableRenderer
             currentX += noteWidth;
         }
         holdScoreText.x = currentX + 50;
-    }
 
-    public void onPressableHit(int normalizedTargetType)
-    {
-        int idx = normalizedTargetType == 12 || normalizedTargetType == 15 ? 4 : normalizedTargetType == 13 || normalizedTargetType == 16 ? 5 : normalizedTargetType;
-        pressables.get(idx).setAlpha(1);
-    }
 
-    public void onPressableGhostHit(int normalizedTargetType)
-    {
-        int idx = normalizedTargetType == 12 || normalizedTargetType == 15 ? 4 : normalizedTargetType == 13 || normalizedTargetType == 16 ? 5 : normalizedTargetType;
-        pressables.get(idx).setAlpha(0.5f);
+        holdScoreText.x = holdScoreText.x + position.x;
+        holdScoreText.y = holdScoreText.y + position.y;
+        for (DrawableSprite note : curHeld) {
+            note.setX(note.getX() + position.x);
+            note.setY(note.getY() + position.y);
+        }
     }
 
     @Override
     public void dispose()
     {
         super.dispose();
-        for (DrawableSprite pressable : pressables) {
-            removeSprite(pressable);
-            pressable.dispose();
-        }
-        pressables.clear();
-        pressables = null;
+        super.dispose();
         for (DrawableSprite held : curHeld) {
             removeSprite(held);
             held.dispose();
         }
         curHeld.clear();
         curHeld = null;
-        removeSprite(base);
-        base.dispose();
-        base = null;
     }
 }

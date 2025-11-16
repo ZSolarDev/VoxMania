@@ -4,12 +4,14 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.zsd.voxmania.game.Game;
+import com.zsd.voxmania.game.ui.UIManager;
+import com.zsd.voxmania.game.ui.objects.game.GameOverlay;
+import com.zsd.voxmania.game.ui.objects.game.MobileOverlay;
+import com.zsd.voxmania.game.ui.objects.game.TargetHoldOverlay;
+import com.zsd.voxmania.game.ui.objects.game.TargetUI;
 import com.zsd.voxmania.states.GameStateEntrypoint;
 import com.zsd.voxmania.states.StateManager;
 
-import java.util.Arrays;
-
-/** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends GameStateEntrypoint {
     @Override
     public void create() {
@@ -27,6 +29,15 @@ public class Main extends GameStateEntrypoint {
                 }
             }
         }
+        registerUI();
         StateManager.switchState(Game.class);
+    }
+
+    public void registerUI()
+    {
+        UIManager.registerUILayer("game.TargetUI", TargetUI.class);
+        UIManager.registerUILayer("game.GameOverlay", GameOverlay.class);
+        UIManager.registerUILayer("game.MobileOverlay", MobileOverlay.class);
+        UIManager.registerUILayer("game.TargetHoldOverlay", TargetHoldOverlay.class);
     }
 }

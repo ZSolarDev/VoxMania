@@ -7,6 +7,7 @@ import com.zsd.voxmania.game.events.EventData;
 import com.zsd.voxmania.game.events.scontainers.DivaScriptESC;
 import com.zsd.voxmania.game.events.ESCRunner;
 import com.zsd.voxmania.game.events.types.TargetHitEvent;
+import com.zsd.voxmania.game.ui.objects.game.TargetUI;
 import com.zsd.voxmania.states.State;
 
 import org.luaj.vm2.Globals;
@@ -29,6 +30,11 @@ public class Game extends State {
     public float curHoldScore = 0;
     public float heldSecs = 0;
     public int curCombo = 0;
+
+    public TargetUI getTargetUI()
+    {
+        return ui.targetRenderer;
+    }
 
     @SuppressWarnings("DiscouragedApi")
     @Override
@@ -56,12 +62,12 @@ public class Game extends State {
             boolean special = args.get(9) == 1 && (normalizeNoteType(noteType) != 12 && normalizeNoteType(noteType) != 13 && normalizeNoteType(noteType) != 15 && normalizeNoteType(noteType) != 16);
 
             Target target = new Target(normalizeNoteType(noteType), true, special, (noteType == 4 || noteType == 5 || noteType == 6 || noteType == 7), x, y, ui, angle, distance, amplitude, frequency, x, y, event, null);
-            ui.addNote(target);
+            getTargetUI().addNote(target);
             target.getMusTime = () -> {return runner.music.getPosition();};
             target.flyingTime = flyingTime;
             target.eventTime = eventTime;
             Target note = new Target(normalizeNoteType(noteType), false, false, (noteType == 4 || noteType == 5 || noteType == 6 || noteType == 7), -1000, -1000, ui, angle, distance, amplitude, frequency, x, y, event, target);
-            ui.addNote(note);
+            getTargetUI().addNote(note);
             note.getMusTime = () -> {return runner.music.getPosition();};
             note.flyingTime = flyingTime;
             note.eventTime = eventTime;
@@ -75,13 +81,13 @@ public class Game extends State {
         diva = new DivaInputState(
             (pressed) -> {
                 if (pressed.contains(DivaInputState.TargetInputType.TRIANGLE))
-                    ui.overlay.onPressableGhostHit(0);
+                    ui.overlay.mobileOverlay.onPressableGhostHit(0);
                 if (pressed.contains(DivaInputState.TargetInputType.CIRCLE))
-                    ui.overlay.onPressableGhostHit(1);
+                    ui.overlay.mobileOverlay.onPressableGhostHit(1);
                 if (pressed.contains(DivaInputState.TargetInputType.CROSS))
-                    ui.overlay.onPressableGhostHit(2);
+                    ui.overlay.mobileOverlay.onPressableGhostHit(2);
                 if (pressed.contains(DivaInputState.TargetInputType.SQUARE))
-                    ui.overlay.onPressableGhostHit(3);
+                    ui.overlay.mobileOverlay.onPressableGhostHit(3);
                 onTargetHit((target) -> (
                     ((target.type == 0 || target.type == 4 || target.type == 18) && pressed.contains(DivaInputState.TargetInputType.TRIANGLE)) ||
                     ((target.type == 1 || target.type == 5 || target.type == 19) && pressed.contains(DivaInputState.TargetInputType.CIRCLE)) ||
@@ -93,19 +99,19 @@ public class Game extends State {
             (held) -> {
                 boolean pressable = false;
                 if (held.contains(DivaInputState.TargetInputType.TRIANGLE) && canBeHeld.contains(DivaInputState.TargetInputType.TRIANGLE)) {
-                    ui.overlay.onPressableGhostHit(0);
+                    ui.overlay.mobileOverlay.onPressableGhostHit(0);
                     pressable = true;
                 }
                 if (held.contains(DivaInputState.TargetInputType.CIRCLE) && canBeHeld.contains(DivaInputState.TargetInputType.CIRCLE)) {
-                    ui.overlay.onPressableGhostHit(1);
+                    ui.overlay.mobileOverlay.onPressableGhostHit(1);
                     pressable = true;
                 }
                 if (held.contains(DivaInputState.TargetInputType.CROSS) && canBeHeld.contains(DivaInputState.TargetInputType.CROSS)) {
-                    ui.overlay.onPressableGhostHit(2);
+                    ui.overlay.mobileOverlay.onPressableGhostHit(2);
                     pressable = true;
                 }
                 if (held.contains(DivaInputState.TargetInputType.SQUARE) && canBeHeld.contains(DivaInputState.TargetInputType.SQUARE)) {
-                    ui.overlay.onPressableGhostHit(3);
+                    ui.overlay.mobileOverlay.onPressableGhostHit(3);
                     pressable = true;
                 }
                 if (pressable)
@@ -155,12 +161,12 @@ public class Game extends State {
                 addedHoldBonus = true;
             }else {
                 curHoldScore = 3000 * held.size();
-                ui.overlay.showBonusText = true;
+                ui.overlay.holdOverlay.showBonusText = true;
             }
 
-            ui.overlay.showText = true;
-            ui.overlay.holdScoreText.text = "+" + (int) curHoldScore;
-            ui.overlay.bonusHoldScoreText.text =  "+" + 1500 * held.size();
+            ui.overlay.holdOverlay.showText = true;
+            ui.overlay.holdOverlay.holdScoreText.text = "+" + (int) curHoldScore;
+            ui.overlay.holdOverlay.bonusHoldScoreText.text =  "+" + 1500 * held.size();
             lastHeldLength = held.size();
         } else {
             score += curHoldScore;
@@ -169,10 +175,10 @@ public class Game extends State {
             heldSecs = 0;
             curHoldScore = 0;
             addedHoldBonus = false;
-            ui.overlay.showText = false;
-            ui.overlay.showBonusText = false;
+            ui.overlay.holdOverlay.showText = false;
+            ui.overlay.holdOverlay.showBonusText = false;
         }
-        ui.overlay.curHeldData = (ArrayList<DivaInputState.TargetInputType>) held.clone();
+        ui.overlay.holdOverlay.curHeldData = (ArrayList<DivaInputState.TargetInputType>) held.clone();
     }
 
     public int normalizeNoteType(int type)
@@ -207,7 +213,7 @@ public class Game extends State {
     public void onTargetHit(Function<Target, Boolean> condition, Function<Target, String> hitNoise)
     {
         ArrayList<TargetHit> pressableTargets = new ArrayList<>();
-        for (Target target : ui.targets) {
+        for (Target target : getTargetUI().targets) {
             if (target.target)
                 continue;
             if (condition.apply(target))
@@ -245,10 +251,10 @@ public class Game extends State {
         }
         for (TargetHit tHit : pressableTargets) {
             Target target = tHit.target;
-            ui.overlay.onPressableHit(normalizeNoteType(target.type));
+            ui.overlay.mobileOverlay.onPressableHit(normalizeNoteType(target.type));
             runner.processEvent(new EventData("TargetHitEvent", new TargetHitEvent(target), runner));
-            ui.removeTarget(target);
-            ui.removeTarget(target.parentTarget);
+            getTargetUI().removeTarget(target);
+            getTargetUI().removeTarget(target.parentTarget);
             target.dispose();
             target.parentTarget.dispose();
             Sound sound = hitSounds.get(hitNoise.apply(target));
@@ -285,14 +291,14 @@ public class Game extends State {
         super.update(delta);
         if (diva != null)
             diva.update(delta);
-        if (ui != null) {
-            for (Target target : ui.targets) {
+        if (getTargetUI() != null) {
+            for (Target target : getTargetUI().targets) {
                 if (target.target)
                     continue;
                 if (target.progress < -(target.type == 15 || target.type == 16 ? 0.02 : 0.07)) {
                     runner.processEvent(new EventData("TargetHitEvent", new TargetHitEvent(target), runner));
-                    ui.queueRemoveTarget(target);
-                    ui.queueRemoveTarget(target.parentTarget);
+                    getTargetUI().queueRemoveTarget(target);
+                    getTargetUI().queueRemoveTarget(target.parentTarget);
                     target.dispose();
                     target.parentTarget.dispose();
                 }
